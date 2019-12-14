@@ -1,0 +1,172 @@
+---
+title: "STOR 320 Final Paper"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(bestglm)
+library(mosaic)
+library(dplyr)
+library(knitr)
+library(readr)
+library(textreadr)
+library(glmnet)
+library(xtable)
+led <- read_csv("C:/Users/ehwu/Downloads/led.csv")
+head(led)
+```
+
+For nearly any business or organization conducting operations across international borders, it is critical to understand trends in the average life expectancy for inhabitants of a country and a country's economic status as developing or developed. In order to understand these trends and make use of these different statistics, a predictive model for this information is necessary. Fortunately, data for life expectancy and a country's economic status is readily available from the World Health Organization and the United Nations to show various correlations with life expectancy and economic status. From this information, a data scientist will ask two key questions. First of all, how can health, social and economic data be used to predict a country's life expectancy? Secondly, how can the same health, social and economic factors be used to predict a country's economic status?
+	It is impossible to understate the importance of predicting life expectancy in the context of a modern business or organization. The information spans many different disciplines, such as whether a company should introduce a new drug into a country's market or whether a sports team should expand its market into a country where most of the population is aging. In addition, someone seeking to understand the impact of a given treatment for a disease needs to know the overall impact of this treatment, as it should improve life expectancy and overall quality of life. By developing a model to show whether the given data can predict life expectancy accurately, a researcher or marketer can accurately develop a product or target a specific population to make the biggest impact on a country's life expectancy given a few data points.
+	Similarly, knowing whether it is possible to predict a country's economic status from given data goes a long way. Particularly with regards to international investment, it is useful for individual investors and companies to know whether it is worthwhile to invest in a country. If a country is developed, the risk of investment may be low, but the reward will also be lower. If it is developing, the investment risk is high, but the potential for reward is also very high. By taking a few data points and inserting them into a proficient and accurate model, one will be able to predict a country's economic status from these data. This will go a long way towards increasing economic output from certain countries in particular and the world as a whole. Likewise, it will improve the quality of life for individual people who live in each country. In the paper below, these two questions are investigated through regression and other modelling tactics in order to create an accurate predicting equation of a country's economic status and life expectancy. 
+
+DATA: 
+This data set incorporates demographic variables, income composition, mortality rates, immunization record and the human development index to determine the factors that affect a country's status and life expectancy, for 193 different countries. This data was collected by the World Health Organization (WHO) over a 15 year period from 2000-2015, along with corresponding economic data from the United Nations website. This data includes 22 variables: the country name, the year, a country's status, life expectancy, and 18 predicting variables. Each observation represents the collected information for a specific country in a specific year from 2000-2015. Some data was unable to be collected for certain countries, and this lack of information is shown with an `NA` value.
+By understanding the different variables found in this data set, it is easier to comprehend what is shown by our results. The first two variables, country name and year, are useful to organize the data and compare various observations to each other, though they don't make a difference when trying to answer our questions. A country's status, developed or developing, and its life expectancy, represented in age, are the two outcome variables of this data set. The remaining variables are the predictors, all of which hold importance when determining a country's status or life expectancy. 
+These variables can be grouped into four distinct categories: immunization factors, mortality factors, economic factors and social factors. The immunization factors feature variables that focus on immunization coverage and reported cases of common diseases. The polio immunization, diphtheria immunization and hepatitis B immunization variables all represent the vaccine coverage found in one year olds, given as a percentage. The measles case variable shows the number of reported cases in the population, and HIV/AIDS is the deaths per 1000 live births. The mortality factors focus on deaths in the populations, as well as causes of early mortality, such as thinness. Adult mortality and infant deaths gives the mortality rates of both sexes, in adults and infants respectively, per 1000 in the population. Under five deaths is a variable that expresses the amount of deaths in children 5 years old or younger, per 1000 in the population. Finally, thinness in ages 5-9 and 10-19 shows the percentage of thinness among children in the given age range. The third category is economic factors, which includes common variables regarding economic status, such as GDP, total expenditure, percentage of health expenditure, and income composition of resources. GDP is the gross domestic product per capita, in USD for all observations. Total expenditure gives the percentage of general government expenditure on health of the country's total expenditure. Health percentage expenditure expresses the health expenditure as a percentage of the country's total GDP. Lastly, the income composition of resources is an index between 0 and 1 that represents the Human Development Index in terms of income composition of resources. The final category is the social factors, which includes alcohol consumption, BMI, population and schooling. Alcohol consumption is recorded as per capita consumption, in litres of pure alcohol. BMI shows the average body mass index for the entire country's population. The population variable is the country's population, and the schooling variable is the average years of schooling in the country. The table provided below is an example of the given data. It shows observations for 15 different countries during 2015, so the reader can better understand how the data is presented.
+
+
+During the exploratory data analysis part of the project, we fitted a number of different models to predict life expectancy. After cross validating the ridge, elastic, and lasso regression models on the test set, we compared the mean square prediction error values to find the best model. The first research question that we decided to explore further involved using lasso regression to predict the life expectancy variable using other quantitative variables in the dataset. Before building another lasso model, we explored the distribution of the response variable. Life expectancy is a left skewed variable, so we decided to transform the variable before doing further analysis. With a log transformation, the life expectancy was still left skewed. We decided to use the transformTukey() function in the rcompanion package, which performed iterative Shapiro-Wilk test to find the optimal lambda value that minimizes the W statistic (which indicates normality). This resulted in a more normally distributed variable. 
+
+Using the same process, the lasso model that was trained using the transformed life expectancy resulted in a mean square prediction error of 4280.47. Since this model involved a transformation, it is difficult to compare the mean square prediction error with the previous model since they are on different scales. The variables that were not included in the final lasso model were Measles, thinness among children from 5-9 years, total expenditure, infant deaths, and population. When compared to the previous lasso model, we found that only Measles and population had very small coefficients. The final lasso model included fewer variables, which indicates that it penalized coefficients more to minimize the sum of squared error. 
+
+Model Selection:
+The first step to predicting the status of a country is to select the best type of model for prediction. Since the status of a country is a categorical variable, we decided to use logistic regression to predict our response variable. Moving forward, we tested models using Ridge, LASSO logistic regression to find the most accurate model. To create our Ridge model, we used the bestglm package and set the alpha term to 0 and used cross validation to determine the lambda term. After training the model, we ran the model on our test set and found a 89% accuracy rate. We repeated these steps with the LASSO model and found a 93.7% accuracy rate. Due to its higher accuracy rate, the LASSO logistic regression model was the best fit for our goal. 
+
+Logistic LASSO Results:
+Using a logistic lasso regression model to predict the status of a country (Developed/Developing), we found that our model predicted accurately 93.7% of the time. This is higher than our prediction accuracy for life expectancy, but because it is a classification model and could be susceptible to errors from false positives and negatives if the data set is predominantly filled with one type of response, we needed to perform more checks to see if our model was valid or if it just guessed one status all the time. To do this, we looked at the sensitivity and specificity of our model. This allows us to see the ratios of false positives and negatives in our predictions. After looking at the specificity and sensitivity values, we noticed that most of the data we had were for developing countries (negative: 0). But our sensitivity was .69, which means that we didn't just predict all countries as developing. Our specificity value was .98, which shows that we predicted developing countries very well. After comparing the specificity and sensitivity values to those of the ridge regression model, we found further evidence that LASSO was a better model. The sensitivity for the ridge model was .40, which means that the ridge model had many false negatives and was predicting most developed countries as developing. The confusion matrices shown below give a better sense of the prediction distributions.
+
+```{r, message=FALSE, warning=FALSE, include=FALSE}
+library(bestglm)
+library(mosaic)
+library(dplyr)
+library(knitr)
+library(readr)
+library(textreadr)
+library(glmnet)
+library(xtable)
+led <- read_csv("C:/Users/ehwu/Downloads/led.csv")
+head(led)
+```
+
+```{r, include=FALSE}
+led = read.csv("led.csv")
+set.seed(346)
+led$SPLIT = sample(x = c("Train","Test"), size = 2938, replace = T, prob = c(0.85,0.15))
+
+ledC = na.omit(led)
+drop.cols = c('SPLIT', 'Country', 'Year', 'Lifeexpectancy')
+TrainC = ledC %>% filter(SPLIT == "Train") %>% dplyr::select(-c(SPLIT, Country, Year, Lifeexpectancy))
+TestC = ledC %>% filter(SPLIT == "Test") %>% dplyr::select(-c(SPLIT, Country, Year, Lifeexpectancy))
+X_TrainC = TrainC %>% dplyr::select(-Status)
+Y_TrainC = TrainC%>% dplyr::select(Status)
+X_TestC = TestC %>% dplyr::select(-Status)
+Y_TestC = TestC %>% dplyr::select(Status)
+```
+
+```{r, include=FALSE}
+
+x <- model.matrix(Status~.,data=TrainC)[,-1]
+y <- ifelse(TrainC$Status == "Developed", 1, 0)
+grid.lambda = 10^seq(10, -2, length = 100)
+ridge.model = glmnet(x, y, alpha = 0, lambda = grid.lambda, family = "binomial")
+x1 <- model.matrix(Status~.,data=TrainC)[,-1]
+y1 <- ifelse(TrainC$Status == "Developed", 1, 0)
+ridge.model.train = glmnet(x1, y1, alpha = 0, lambda = grid.lambda)
+cv.out3 = cv.glmnet(x1, y1, alpha = 0)
+best.lambda = cv.out3$lambda.min
+final.model <-glmnet(x, y, alpha = 0, lambda = best.lambda)
+x.test <- model.matrix(Status ~., data=TestC)[,-1]
+ridge.pred <- final.model %>% predict(newx = x.test)
+Predicted <- ifelse(ridge.pred > 0.5, 1, 0)
+Actual <- ifelse(TestC$Status == "Developed", 1, 0)
+
+
+mean(Predicted == Actual)
+ctab = table(Predicted, Actual)
+ctab
+Sensitivity = 13/32
+Specificity = 185/190
+Sensitivity
+Specificity
+```
+
+```{r, echo=FALSE}
+
+ctab = kable(table(Predicted, Actual), type = "html", caption = "Predicted vs Actual for Ridge Regression")
+ctab
+
+```
+```{r, include=FALSE}
+
+x <- model.matrix(Status~.,data=TrainC)[,-1]
+y <- ifelse(TrainC$Status == "Developed", 1, 0)
+# Find the best lambda using cross-validation
+cv.lasso <- cv.glmnet(x, y, alpha = 1, family = "binomial")
+# Fit the final model on the training data
+model <- glmnet(x, y, alpha = 1, family = "binomial",
+                lambda = cv.lasso$lambda.min)
+# Display regression coefficients
+# Make predictions on the test data
+x.test <- model.matrix(Status ~., data=TestC)[,-1]
+probabilities <- model %>% predict(newx = x.test)
+Predicted <- ifelse(probabilities > 0.5, 1, 0)
+# Model accuracy
+Actual <- ifelse(TestC$Status == "Developed", 1, 0)
+mean(Predicted == Actual)
+```
+
+```{r, echo=FALSE}
+
+ctab = kable(table(Predicted, Actual), type = "html", caption = "Predicted vs Actual for LASSO Regression")
+ctab
+```
+
+ 
+```{r, include=FALSE}
+library(glmnet)
+library(dplyr)
+TrainC[,-1] = scale(X_TrainC)
+x <- model.matrix(Status~.,data=TrainC)[,-1]
+y <- ifelse(TrainC$Status == "Developed", 1, 0)
+# Find the best lambda using cross-validation
+cv.lasso <- cv.glmnet(x, y, alpha = 1, family = "binomial")
+# Fit the final model on the training data
+model <- glmnet(x, y, alpha = 1, family = "binomial",
+                lambda = cv.lasso$lambda.min)
+# Display regression coefficients
+coeff = coef(model)
+# Make predictions on the test data
+x.test <- model.matrix(Status ~., data=TestC)[,-1]
+probabilities <- model %>% predict(newx = x.test)
+Predicted <- ifelse(probabilities > 0.5, 1, 0)
+# Model accuracy
+Actual <- ifelse(TestC$Status == "Developed", 1, 0)
+mean(Predicted == Actual)
+```
+
+Most Important Factors:
+Finally we wanted to find the most important features that impacted the prediction of the status of a country. Using the LASSO model we created previously, we took coefficients and standardized them to create a uniform scale for comparison. The scale needed to be uniform because we had multiple predictors with different units (population, GDP, etc.). Next we sorted by the largest absolute coefficient value to find the most important features. Since all the features are now using the same units, the largest coefficients would represent the most amount variance in our model. Our findings are replicated in the table below and we found that most impactful predictors in our model were infant deaths, HIV/AIDS, and deaths under the age of 5. These coefficients were all negative, meaning that the higher these values are, the more likely the country being predicted is a developing country. The top features that were most correlated to a developed country were income composition of resources, thinness between 5 and 9 year olds, and alcohol consumption. These results were pretty surprising, as factors that we assumed would be important, like GDP and population, had small coefficients, with population being the least significant predictor in our model. 
+
+```{r xtable, results='asis', echo=FALSE}
+a = data.frame(as.matrix(coeff))
+colnames(a) = "Coefficients"
+for(i in 1:19) {
+#a$"Variables"[i] = toString(dimnames(coeff)[[1]][i])
+a$"Sign"[i] = ifelse(a$Coefficients[i] > 0, "Positive", "Negative")
+}
+a$Coefficients = abs(a$Coefficients)
+b = a[order(-a$Coefficients),]
+f = xtable(b, auto = TRUE)
+print(f, type = "html")
+
+```
+
+
+
+The questions of whether it is possible to predict a country's economic status based on these given data and whether one can predict the average life expectancy of the inhabitants of a country based on these same data proved to be very informative.  Using a logistic LASSO regression model, it is possible to predict a country's economic status accurately 93.7% of the time, which shows that our model can be used in actual practice.  In addition, a LASSO regression was also is useful to predict the life expectancy of a country's inhabitants.  With a mean square prediction error of 4280.47, this model was a relatively accurate predictor of life expectancy, but not quite as accurate as the economic status model.
+	Being able to accurately predict life expectancy and economic status are critical to the success of any multinational entity.  Knowing what products and services to tailor to each country provides more efficient allocation of resources so that developed countries and those with high life expectancy do not receive an excess of supplies or products that would be put to better use in a developing country or one with a lower life expectancy.  Being able to predict life expectancy and status with such a high rate of success greatly improves the prospects for global economic development and increased global health.  International development firms and global health organizations would be well-served to use these models to target their allocation of resources, as would corporations who use marketing data to home in on a market of focus that economic status and life expectancy shape to a great extent.  
+In producing these results, we expected to be able to predict to a high level, but an accuracy of 93.7% was particularly impressive for economic status.  We were also surprised that GDP and population were relatively unimportant to predict economic status, as they had much lower coefficients than we expected.  With discovery and development comes room for improvement, and these models, although impressive, do leave room for improvement.  The World Health Organization and the United Nations's data are thorough and expressive, but comparing them to data from different sources, such as the CIA and the OECD, would allow for more accurate data, as well as providing values for those that were not available in the original dataset.  We took many steps for accuracy in our modeling, such as making the data more uniform, standardizing the data, and correcting for the left-skewness of the life expectancy data, but in the future, one could make the model more accurate by incorporating these other sources of data.  In producing the model, we used many single analysis techniques available, but it might be useful to look at the data through a log-linear regression or log-log regression to see how these predictions might fit the data better and improve the model.  Altogether, the models were both exceptionally predictive and are extremely useful to the fields of public health, business, and international economic development.
